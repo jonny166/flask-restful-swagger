@@ -48,6 +48,34 @@
       docExpansion: "none"
     });
 
+    function authenticate (username, password) {
+     jQuery.ajax({
+         type: "POST",
+         url: "https://10.7.3.113:8082/iso/api/auth",
+         //url: "{{auth_url}}",
+         contentType: "application/json; charset=utf-8",
+         data: JSON.stringify({username:username, password:password}),
+         dataType: "json",
+         success: function (data, status, jqXHR) {
+            var jwt = data.token;
+            window.authorizations.add("jwt", new ApiKeyAuthorization("Authorization", "Bearer " + jwt, "header"));
+            alert("You are now logged in!");
+         },
+     
+         error: function (jqXHR, status) {
+            alert("Login Failed");
+     
+         }     
+     }); 
+    }
+    $(document).ready(function () {
+        $('#authenticate').click(function () {
+            username = $("#username").val();
+            password = $("#password").val();
+            authenticate(username, password);
+        });
+    });
+
     $('#input_apiKey').change(function() {
       var key = $('#input_apiKey')[0].value;
       log("key: " + key);
@@ -55,7 +83,7 @@
         log("added key " + key);
         window.authorizations.add("key", new ApiKeyAuthorization("api_key", key, "query"));
       }
-    })
+    });
     window.swaggerUi.load();
   });
   </script>
@@ -78,8 +106,18 @@
     </form>
   </div>
 </div>
-
+<div id="swagger-login_bar" class="swagger-ui-wrap">
+  <form id="login_form">
+    <h3>Log In to test API</h3>
+    <label>Username:  </label>
+    <input type="username" id="username" placeholder="name"/>
+    <label>Password: </label>
+    <input type="password" id="password" placeholder=""/>
+    <input type="button" id="authenticate" value="Log In"/>
+  </form>
+</div>
 <div id="message-bar" class="swagger-ui-wrap">&nbsp;</div>
 <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+
 </body>
 </html>
